@@ -69,8 +69,8 @@ pipeline {
         stage("Performance"){
             steps {
                 sh '''
-                    $PYTHON_VENV/flask --app app/api.py run &
-                    /usr/bin/curl -sf --retry 10 --retry-delay 1 --retry-connrefused http://localhost:5000
+                    #$PYTHON_VENV/flask --app app/api.py run &
+                    #/usr/bin/curl -sf --retry 10 --retry-delay 1 --retry-connrefused http://localhost:5000
                     /usr/bin/jmeter -n -t test/jmeter/flask.jmx -f -l flask.jtl
                 '''
                 perfReport sourceDataFiles: 'flask.jtl'
