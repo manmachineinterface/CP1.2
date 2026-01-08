@@ -14,3 +14,8 @@ Thumbs.db
 # Ignore environment and secret files
 .env
 config.json
+
+# Ignore CP1.2 related files
+result.xml
+__pycache__
+.pytest_cache
