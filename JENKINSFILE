@@ -4,6 +4,7 @@ pipeline {
     environment {
         PYTHON_VENV = '/home/jenkins/.local/bin'
         OPENJDK = '/opt/java/openjdk/bin'
+        JMETER = '/home/jenkins/apache-jmeter-5.6.3/bin/jmeter.sh'
     }
 
     stages {
@@ -71,7 +72,7 @@ pipeline {
                 sh '''
                     #$PYTHON_VENV/flask --app app/api.py run &
                     #/usr/bin/curl -sf --retry 10 --retry-delay 1 --retry-connrefused http://localhost:5000
-                    /usr/bin/jmeter -n -t test/jmeter/flask.jmx -l flask.jtl
+                    $JMETER -n -t test/jmeter/flask.jmx -f -l flask.jtl
                 '''
                 perfReport sourceDataFiles: 'flask.jtl'
             }
