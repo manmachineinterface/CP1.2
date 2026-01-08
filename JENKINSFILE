@@ -66,27 +66,15 @@ pipeline {
             }
         }
 
-        //stage("Performance"){
-        //    steps {
-        //        sh '''
-        //            export PYTHONPATH=$WORKSPACE
-        //            export FLASK_APP=app/api.py
-        //            flast run &
-        //
-        //            # 10 reintentos para comprobar que Flask está levantado
-        //            for i in $(seq 1 10); do
-        //              nc -z localhost 5000 && break
-        //              echo "Waiting for Flask... try $i/10"
-        //              sleep 1
-        //            done || {
-        //              echo "Flask not available"
-        //              exit 1
-        //            }
-        //
-        //            ~/apache-jmeter-5.6.3/bin/jmeter.sh -n -t test/jmeter/flask.jmx -f -l flask.jtl
-        //        '''
-        //        perfReport sourceDataFiles: 'flask.jtl'
-        //    }
-        //}
+        stage("Performance"){
+            steps {
+                sh '''
+                    $PYTHON_VENV/flask --app app/api.py run &
+                    /usr/bin/curl -sf --retry 10 --retry-delay 1 --retry-connrefused http://localhost:5000
+                    /usr/bin/jmeter -n -t test/jmeter/flask.jmx -f -l flask.jtl
+                '''
+                perfReport sourceDataFiles: 'flask.jtl'
+            }
+        }
      }
 }
