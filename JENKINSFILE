@@ -7,6 +7,7 @@ pipeline {
                 sh '''
                     export PYTHONPATH=$WORKSPACE
                     /home/jenkins/.local/bin/flake8 --exit-zero --format=pylint app > flake8.out
+                    echo $?
                 '''
                 recordIssues qualityGates: [[integerThreshold: 8, threshold: 8.0, type: 'TOTAL'], [criticality: 'FAILURE', integerThreshold: 10, threshold: 10.0, type: 'TOTAL']], sourceCodeRetention: 'LAST_BUILD', tools: [flake8(pattern: 'flake8.out')]
             }
