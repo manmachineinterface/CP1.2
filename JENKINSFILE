@@ -24,7 +24,7 @@ pipeline {
                     steps {
                         catchError(buildResult: 'SUCCESS', stageResult: 'SUCCESS') {
                             sh '''
-                                /home/jenkins/.local/bin/coverage run --branch --source=app --omit=app/__init__.py,app/api.py -m pytest --junitxml=result-unit.xml test/unit
+                                $PYTHON_VENV/coverage run --branch --source=app --omit=app/__init__.py,app/api.py -m pytest --junitxml=result-unit.xml test/unit
                             '''
                             junit 'result-unit.xml'
                         }
@@ -35,11 +35,11 @@ pipeline {
                     steps {
                         catchError(buildResult: 'SUCCESS', stageResult: 'SUCCESS') {
                             sh '''
-                                /home/jenkins/.local/bin/flask --app app/api.py run &
+                                $PYTHON_VENV/flask --app app/api.py run &
                                 /usr/bin/curl -sf --retry 10 --retry-delay 1 --retry-connrefused http://localhost:5000
-                                /opt/java/openjdk/bin/java -jar /home/jenkins/wiremock/wiremock-standalone-3.13.2.jar --port 9090 --root-dir test/wiremock &
+                                $OPENJDK/java -jar /home/jenkins/wiremock/wiremock-standalone-3.13.2.jar --port 9090 --root-dir test/wiremock &
                                 /usr/bin/curl -sf --retry 10 --retry-delay 1 --retry-connrefused http://localhost:9090/__admin/health
-                                /home/jenkins/.local/bin/pytest --junitxml=result-rest.xml test/rest
+                                $PYTHON_VENV/pytest --junitxml=result-rest.xml test/rest
                             '''
                             junit 'result-rest.xml'
                         }
@@ -51,7 +51,7 @@ pipeline {
         stage("Coverage") {
             steps {
                 sh '''
-                    /home/jenkins/.local/bin/coverage xml
+                    $PYTHON_VENV/coverage xml
                 '''
                 recordCoverage qualityGates: [[criticality: 'NOTE', integerThreshold: 95, metric: 'LINE', threshold: 95.0], [criticality: 'ERROR', integerThreshold: 85, metric: 'LINE', threshold: 85.0], [criticality: 'ERROR', integerThreshold: 80, metric: 'BRANCH', threshold: 80.0], [criticality: 'NOTE', integerThreshold: 90, metric: 'BRANCH', threshold: 90.0]], tools: [[parser: 'COBERTURA', pattern: 'coverage.xml']]
             }
@@ -60,7 +60,7 @@ pipeline {
         stage("Security") {
             steps {
                 sh '''
-                   /home/jenkins/.local/bin/bandit --exit-zero -r . -f custom -o bandit.out --msg-template "{abspath}:{line}: [{test_id}] {msg}"
+                   $PYTHON_VENV/bandit --exit-zero -r . -f custom -o bandit.out --msg-template "{abspath}:{line}: [{test_id}] {msg}"
                 '''
                 recordIssues tools: [pyLint(name: 'Bandit', pattern: 'bandit.out')], qualityGates: [[integerThreshold: 2, threshold: 2.0, type: 'TOTAL'], [criticality: 'FAILURE', integerThreshold: 4, threshold: 4.0, type: 'TOTAL']]
             }
