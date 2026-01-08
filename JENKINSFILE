@@ -5,7 +5,6 @@ pipeline {
         stage('Static') {
             steps {
                 sh '''
-                    #export PYTHONPATH=$WORKSPACE
                     /home/jenkins/.local/bin/flake8 --exit-zero --format=pylint app > flake8.out
                 '''
                 recordIssues qualityGates: [[integerThreshold: 8, threshold: 8.0, type: 'TOTAL'], [criticality: 'FAILURE', integerThreshold: 10, threshold: 10.0, type: 'TOTAL']], sourceCodeRetention: 'LAST_BUILD', tools: [flake8(pattern: 'flake8.out')]
@@ -20,7 +19,6 @@ pipeline {
                     steps {
                         catchError(buildResult: 'SUCCESS', stageResult: 'SUCCESS') {
                             sh '''
-                                #export PYTHONPATH=$WORKSPACE
                                 /home/jenkins/.local/bin/coverage run --branch --source=app --omit=app/__init__.py,app/api.py -m pytest --junitxml=result-unit.xml test/unit
                             '''
                             junit 'result-unit.xml'
@@ -34,11 +32,8 @@ pipeline {
                             sh '''
                                 /home/jenkins/.local/bin/flask --app app/api.py run &
                                 /usr/bin/curl -sf --retry 10 --retry-delay 1 --retry-connrefused http://localhost:5000
-
                                 /opt/java/openjdk/bin/java -jar /home/jenkins/wiremock/wiremock-standalone-3.13.2.jar --port 9090 --root-dir test/wiremock &
                                 /usr/bin/curl -sf --retry 10 --retry-delay 1 --retry-connrefused http://localhost:9090/__admin/health
-
-                                #export PYTHONPATH=${WORKSPACE}
                                 /home/jenkins/.local/bin/pytest --junitxml=result-rest.xml test/rest
                             '''
                             junit 'result-rest.xml'
