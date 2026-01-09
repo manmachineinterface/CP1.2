@@ -37,8 +37,8 @@ pipeline {
                                 WIREMOCK_PID=$!
                                 curl -sf --retry 10 --retry-delay 1 --retry-connrefused http://localhost:9090/__admin/health
                                 pytest --junitxml=result-rest.xml test/rest
-                                kill FLASK_PID=$!
-                                kill WIREMOCK_PID=$!
+                                kill $FLASK_PID
+                                kill $WIREMOCK_PID
                             '''
                             junit 'result-rest.xml'
                         }
@@ -72,7 +72,7 @@ pipeline {
                     FLASK_PID=$!
                     curl -sf --retry 10 --retry-delay 1 --retry-connrefused http://localhost:5000
                     jmeter -n -t test/jmeter/flask.jmx -f -l flask.jtl
-                    kill FLASK_PID
+                    kill $FLASK_PID
                 '''
                 perfReport sourceDataFiles: 'flask.jtl'
             }
