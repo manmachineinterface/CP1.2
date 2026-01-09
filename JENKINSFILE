@@ -77,14 +77,17 @@ pipeline {
                 perfReport sourceDataFiles: 'flask.jtl'
             }
         }
+
+        post {
+            cleanup {
+                cleanWs(deleteDirs: true, disableDeferredWipeout: true)
+            }
+        }
     }
 
     post {
         cleanup {
-            cleanWs(
-                deleteDirs: true,
-                disableDeferredWipeout: true
-            )
+            cleanWs(deleteDirs: true, disableDeferredWipeout: true)
         }
     }
 }
