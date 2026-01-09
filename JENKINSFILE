@@ -81,7 +81,7 @@ pipeline {
 
     post {
         cleanup {
-            cleanWS(
+            cleanWs(
                 deleteDirs: true,
                 disableDeferredWipeout: true
             )
