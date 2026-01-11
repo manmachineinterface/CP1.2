@@ -19,8 +19,8 @@ pipeline {
 
         stage('Tests') {
             parallel {
-                agent {label 'agent1'}
                 stage('Unit') {
+                    agent {label 'agent1'}
                     steps {
                         catchError(buildResult: 'SUCCESS', stageResult: 'SUCCESS') {
                             sh '''
