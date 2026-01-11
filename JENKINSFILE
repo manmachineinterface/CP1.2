@@ -9,12 +9,10 @@ pipeline {
     stages {
         stage('Get Code') {
             steps {
-                git branch: 'main', changelog: false, poll: false, url: 'https://github.com/manmachineinterface/CP1.2'
-                //script {
-                //    git branch: 'main',
-                //        url: 'https://github.com/manmachineinterface/CP1.2'
-                //}
-
+                git branch: 'main',
+                    changelog: false,
+                    poll: false,
+                    url: 'https://github.com/manmachineinterface/CP1.2'
             }
         }
 
