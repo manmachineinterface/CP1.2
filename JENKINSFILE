@@ -16,10 +16,8 @@ pipeline {
             }
         }
 
-        stage('Tests')
-        {
-            parallel
-            {
+        stage('Tests') {
+            parallel {
                 stage('Unit') {
                     steps {
                         catchError(buildResult: 'SUCCESS', stageResult: 'SUCCESS') {
