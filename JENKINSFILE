@@ -2,19 +2,19 @@ pipeline {
     agent any
 
     options {
-        //skipDefaultCheckout(true)
+        skipDefaultCheckout(true)
         timestamps()
     }
 
     stages {
-        //stage('Get Code') {
-        //    steps {
-        //        git branch: 'main',
-        //            changelog: false,
-        //            poll: false,
-        //            url: 'https://github.com/manmachineinterface/CP1.2'
-        //    }
-        //}
+        stage('Get Code') {
+            steps {
+                git branch: 'main',
+                    changelog: false,
+                    poll: false,
+                    url: 'https://github.com/manmachineinterface/CP1.2'
+            }
+        }
 
         stage('Tests')
         {
