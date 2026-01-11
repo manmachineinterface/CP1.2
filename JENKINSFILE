@@ -21,7 +21,12 @@ pipeline {
                 sh '''
                     flake8 --exit-zero --format=pylint app > flake8.out
                 '''
-                recordIssues qualityGates: [[integerThreshold: 8, threshold: 8.0, type: 'TOTAL'], [criticality: 'FAILURE', integerThreshold: 10, threshold: 10.0, type: 'TOTAL']], sourceCodeRetention: 'LAST_BUILD', tools: [flake8(pattern: 'flake8.out')]
+                recordIssues qualityGates: [
+                    [integerThreshold: 8, threshold: 8.0, type: 'TOTAL'],
+                    [criticality: 'FAILURE', integerThreshold: 10, threshold: 10.0, type: 'TOTAL']
+                ],
+                sourceCodeRetention: 'LAST_BUILD',
+                tools: [flake8(pattern: 'flake8.out')]
             }
         }
 
@@ -64,7 +69,13 @@ pipeline {
 
         stage("Coverage") {
             steps {
-                recordCoverage qualityGates: [[criticality: 'NOTE', integerThreshold: 95, metric: 'LINE', threshold: 95.0], [criticality: 'ERROR', integerThreshold: 85, metric: 'LINE', threshold: 85.0], [criticality: 'ERROR', integerThreshold: 80, metric: 'BRANCH', threshold: 80.0], [criticality: 'NOTE', integerThreshold: 90, metric: 'BRANCH', threshold: 90.0]], tools: [[parser: 'COBERTURA', pattern: 'coverage.xml']]
+                recordCoverage qualityGates: [
+                    [criticality: 'NOTE', integerThreshold: 95, metric: 'LINE', threshold: 95.0],
+                    [criticality: 'ERROR', integerThreshold: 85, metric: 'LINE', threshold: 85.0],
+                    [criticality: 'ERROR', integerThreshold: 80, metric: 'BRANCH', threshold: 80.0],
+                    [criticality: 'NOTE', integerThreshold: 90, metric: 'BRANCH', threshold: 90.0]
+                ],
+                tools: [[parser: 'COBERTURA', pattern: 'coverage.xml']]
             }
         }
 
@@ -73,7 +84,12 @@ pipeline {
                 sh '''
                    bandit --exit-zero -r . -f custom -o bandit.out --msg-template "{abspath}:{line}: [{test_id}] {msg}"
                 '''
-                recordIssues tools: [pyLint(name: 'Bandit', pattern: 'bandit.out')], qualityGates: [[integerThreshold: 2, threshold: 2.0, type: 'TOTAL'], [criticality: 'FAILURE', integerThreshold: 4, threshold: 4.0, type: 'TOTAL']]
+                recordIssues tools: [
+                    pyLint(name: 'Bandit', pattern: 'bandit.out')],
+                qualityGates: [
+                    [integerThreshold: 2, threshold: 2.0, type: 'TOTAL'],
+                    [criticality: 'FAILURE', integerThreshold: 4, threshold: 4.0, type: 'TOTAL']
+                ]
             }
         }
 
