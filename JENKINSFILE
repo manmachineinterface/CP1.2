@@ -19,7 +19,7 @@ pipeline {
                 always {
                     stash name: 'source code',
                     includes: '**/*',
-                    excludes: '.git/**,reports/**,coverage/**,**/__pycache__/**',
+                    excludes: '.git/**,reports/**,coverage/**,**/__pycache__/**'
                     //useDefaultExcludes: false
                 }
             }
