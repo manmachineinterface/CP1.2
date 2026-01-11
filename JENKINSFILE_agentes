@@ -33,7 +33,7 @@ pipeline {
                 }
 
                 stage('Rest') {
-                    agent {label 'agent1'}
+                    agent {label 'agent2'}
                     steps {
                         catchError(buildResult: 'SUCCESS', stageResult: 'SUCCESS') {
                             sh '''
