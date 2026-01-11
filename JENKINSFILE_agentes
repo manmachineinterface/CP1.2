@@ -14,6 +14,7 @@ pipeline {
                     changelog: false,
                     poll: false,
                     url: 'https://github.com/manmachineinterface/CP1.2'
+                stash name:'code', includes:'**'
             }
         }
 
@@ -23,6 +24,7 @@ pipeline {
                     agent {label 'agent1'}
                     steps {
                         catchError(buildResult: 'SUCCESS', stageResult: 'SUCCESS') {
+                            unstash name:'code'
                             sh '''
                                 coverage run --branch --source=app --omit=app/__init__.py,app/api.py -m pytest --junitxml=result-unit.xml test/unit
                                 coverage xml
@@ -36,6 +38,7 @@ pipeline {
                     agent {label 'agent2'}
                     steps {
                         catchError(buildResult: 'SUCCESS', stageResult: 'SUCCESS') {
+                            unstash name:'code'
                             sh '''
                                 flask --app app/api.py run &
                                 FLASK_PID=$!
@@ -55,6 +58,7 @@ pipeline {
                 stage('Static') {
                     agent {label 'agent1'}
                     steps {
+                        unstash name:'code'
                         sh '''
                             flake8 --exit-zero --format=pylint app > flake8.out
                         '''
@@ -85,6 +89,7 @@ pipeline {
         stage("Security") {
             agent {label 'agent1'}
             steps {
+                unstash name:'code'
                 sh '''
                    bandit --exit-zero -r . -f custom -o bandit.out --msg-template "{abspath}:{line}: [{test_id}] {msg}"
                 '''
@@ -100,6 +105,7 @@ pipeline {
         stage("Performance"){
             agent {label 'agent1'}
             steps {
+                unstash name:'code'
                 sh '''
                     flask --app app/api.py run &
                     FLASK_PID=$!
