@@ -13,13 +13,6 @@ pipeline {
                     changelog: false,
                     poll: false,
                     url: 'https://github.com/manmachineinterface/CP1.2'
-                stash name:'code', includes:'**'
-            }
-
-            post {
-                cleanup {
-                    cleanWs(deleteDirs: true, disableDeferredWipeout: true)
-                }
             }
         }
 
@@ -28,19 +21,11 @@ pipeline {
                 stage('Unit') {
                     steps {
                         catchError(buildResult: 'SUCCESS', stageResult: 'SUCCESS') {
-                            unstash name:'code'
                             sh '''
                                 coverage run --branch --source=app --omit=app/__init__.py,app/api.py -m pytest --junitxml=result-unit.xml test/unit
                                 coverage xml
                             '''
                             junit 'result-unit.xml'
-                            stash name: 'coverage', includes: 'coverage.xml'
-                        }
-                    }
-
-                    post {
-                        cleanup {
-                        cleanWs(deleteDirs: true, disableDeferredWipeout: true)
                         }
                     }
                 }
@@ -48,7 +33,6 @@ pipeline {
                 stage('Rest') {
                     steps {
                         catchError(buildResult: 'SUCCESS', stageResult: 'SUCCESS') {
-                            unstash name:'code'
                             sh '''
                                 flask --app app/api.py run &
                                 FLASK_PID=$!
@@ -63,17 +47,10 @@ pipeline {
                             junit 'result-rest.xml'
                         }
                     }
-
-                    post {
-                        cleanup {
-                        cleanWs(deleteDirs: true, disableDeferredWipeout: true)
-                        }
-                    }
                 }
 
                 stage('Static') {
                     steps {
-                        unstash name:'code'
                         sh '''
                             flake8 --exit-zero --format=pylint app > flake8.out
                         '''
@@ -84,19 +61,12 @@ pipeline {
                         sourceCodeRetention: 'LAST_BUILD',
                         tools: [flake8(pattern: 'flake8.out')]
                     }
-
-                    post {
-                        cleanup {
-                        cleanWs(deleteDirs: true, disableDeferredWipeout: true)
-                        }
-                    }
                 }
             }
         }
 
         stage("Coverage") {
             steps {
-                unstash 'coverage'
                 recordCoverage qualityGates: [
                     [criticality: 'NOTE', integerThreshold: 95, metric: 'LINE', threshold: 95.0],
                     [criticality: 'ERROR', integerThreshold: 85, metric: 'LINE', threshold: 85.0],
@@ -104,12 +74,6 @@ pipeline {
                     [criticality: 'NOTE', integerThreshold: 90, metric: 'BRANCH', threshold: 90.0]
                 ],
                 tools: [[parser: 'COBERTURA', pattern: 'coverage.xml']]
-            }
-
-            post {
-                cleanup {
-                    cleanWs(deleteDirs: true, disableDeferredWipeout: true)
-                }
             }
         }
 
@@ -125,12 +89,6 @@ pipeline {
                     [criticality: 'FAILURE', integerThreshold: 4, threshold: 4.0, type: 'TOTAL']
                 ]
             }
-
-            post {
-                cleanup {
-                    cleanWs(deleteDirs: true, disableDeferredWipeout: true)
-                }
-            }
         }
 
         stage("Performance"){
@@ -143,12 +101,6 @@ pipeline {
                     kill $FLASK_PID
                 '''
                 perfReport sourceDataFiles: 'flask.jtl'
-            }
-
-            post {
-                cleanup {
-                    cleanWs(deleteDirs: true, disableDeferredWipeout: true)
-                }
             }
         }
     }
