@@ -92,7 +92,7 @@ pipeline {
                 '''
                 //perfReport sourceDataFiles: 'flask_${BUILD_NUMBER}.jtl', ignoreFailedBuilds: true
                 perfReport
-                        sourceDataFiles: "${JMETER_JTL}",
+                        sourceDataFiles: 'flask_${BUILD_NUMBER}.jtl',
                         errorUnstableThreshold: 1,
                         errorFailedThreshold: 5,
                         percentiles: '0,50,90,95,100'
