@@ -48,9 +48,8 @@ pipeline {
                                         coverage xml
                                     '''
                                 }
-
-                                junit 'result-unit.xml'
                                 stash name: 'coverage', includes: 'coverage.xml'
+                                junit 'result-unit.xml'
                             }
 
                             post {
