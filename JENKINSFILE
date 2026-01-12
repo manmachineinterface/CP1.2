@@ -14,6 +14,12 @@ pipeline {
                     poll: false,
                     url: 'https://github.com/manmachineinterface/CP1.2'
             }
+
+            post {
+                cleanup {
+                    cleanWs(deleteDirs: true, disableDeferredWipeout: true)
+                }
+            }
         }
 
         stage('Tests') {
@@ -26,6 +32,12 @@ pipeline {
                                 coverage xml
                             '''
                             junit 'result-unit.xml'
+                        }
+                    }
+
+                    post {
+                        cleanup {
+                        cleanWs(deleteDirs: true, disableDeferredWipeout: true)
                         }
                     }
                 }
@@ -47,6 +59,12 @@ pipeline {
                             junit 'result-rest.xml'
                         }
                     }
+
+                    post {
+                        cleanup {
+                        cleanWs(deleteDirs: true, disableDeferredWipeout: true)
+                        }
+                    }
                 }
 
                 stage('Static') {
@@ -60,6 +78,12 @@ pipeline {
                         ],
                         sourceCodeRetention: 'LAST_BUILD',
                         tools: [flake8(pattern: 'flake8.out')]
+                    }
+
+                    post {
+                        cleanup {
+                        cleanWs(deleteDirs: true, disableDeferredWipeout: true)
+                        }
                     }
                 }
             }
@@ -75,6 +99,12 @@ pipeline {
                 ],
                 tools: [[parser: 'COBERTURA', pattern: 'coverage.xml']]
             }
+
+            post {
+                cleanup {
+                    cleanWs(deleteDirs: true, disableDeferredWipeout: true)
+                }
+            }
         }
 
         stage("Security") {
@@ -88,6 +118,12 @@ pipeline {
                     [integerThreshold: 2, threshold: 2.0, type: 'TOTAL'],
                     [criticality: 'FAILURE', integerThreshold: 4, threshold: 4.0, type: 'TOTAL']
                 ]
+            }
+
+            post {
+                cleanup {
+                    cleanWs(deleteDirs: true, disableDeferredWipeout: true)
+                }
             }
         }
 
