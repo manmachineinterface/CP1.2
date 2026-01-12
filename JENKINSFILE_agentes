@@ -40,7 +40,8 @@ pipeline {
                         node {
                             label 'agent1'
                             // workspace fijo para toda la rama
-                            customWorkspace "${WORKSPACE}/unit-coverage"
+                            //customWorkspace "${env.WORKSPACE}/unit-coverage"
+                            customWorkspace "unit-coverage"
                         }
                     }
 
