@@ -84,7 +84,6 @@ pipeline {
                             cleanWs(deleteDirs: true, disableDeferredWipeout: true)
                             script {
                                 deleteDir()
-                                sh "rm -rf ${pwd()}*@tmp"
                             }
                         }
                     }
