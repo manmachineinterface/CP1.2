@@ -52,11 +52,11 @@ pipeline {
                                 junit 'result-unit.xml'
                             }
 
-                            post {
-                                cleanup {
-                                    cleanWs(deleteDirs: true, disableDeferredWipeout: true)
-                                }
-                            }
+                            //post {
+                            //    cleanup {
+                            //        cleanWs(deleteDirs: true, disableDeferredWipeout: true)
+                            //    }
+                            //}
                         }
 
                         stage("Coverage") {
