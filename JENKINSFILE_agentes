@@ -40,7 +40,7 @@ pipeline {
                         node {
                             label 'agent1'
                             // workspace fijo para toda la rama
-                            //customWorkspace "${env.WORKSPACE}/unit-coverage"
+                            customWorkspace "${env.WORKSPACE}/unit-coverage"
                         }
                     }
 
@@ -58,10 +58,9 @@ pipeline {
                                           -m pytest --junitxml=result-unit.xml test/unit
                                         coverage xml
                                     '''
-                                    junit 'result-unit.xml'
                                 }
 
-                                //junit 'result-unit.xml'
+                                junit 'result-unit.xml'
                             }
                         }
 
