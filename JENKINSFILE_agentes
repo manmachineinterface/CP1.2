@@ -33,56 +33,58 @@ pipeline {
             }
         }
 
-        stage ('Unit, Coverage') {
-            agent {label 'agent1'}
-            stages {
-                stage('Unit') {
-                    steps {
-                        showAgentInformation()
-                        catchError(buildResult: 'SUCCESS', stageResult: 'SUCCESS') {
-                            unstash name:'code'
-                            sh '''
-                                coverage run --branch --source=app --omit=app/__init__.py,app/api.py -m pytest --junitxml=result-unit.xml test/unit
-                                coverage xml
-                            '''
-                        }
-                        junit 'result-unit.xml'
-                        stash name: 'coverage', includes: 'coverage.xml'
-                    }
-
-                    post {
-                        cleanup {
-                            cleanWs(deleteDirs: true, disableDeferredWipeout: true)
-                        }
-                    }
-                }
-
-                stage("Coverage") {
-                    steps {
-                        showAgentInformation()
-                        unstash 'coverage'
-                        recordCoverage qualityGates: [
-                            [criticality: 'NOTE', integerThreshold: 95, metric: 'LINE', threshold: 95.0],
-                            [criticality: 'ERROR', integerThreshold: 85, metric: 'LINE', threshold: 85.0],
-                            [criticality: 'ERROR', integerThreshold: 80, metric: 'BRANCH', threshold: 80.0],
-                            [criticality: 'NOTE', integerThreshold: 90, metric: 'BRANCH', threshold: 90.0]
-                        ],
-                        tools: [[parser: 'COBERTURA', pattern: 'coverage.xml']]
-                    }
-
-                    post {
-                        cleanup {
-                            cleanWs(deleteDirs: true, disableDeferredWipeout: true)
-                        }
-                    }
-                }
-            }
-        }
-
         stage ('Tests') {
             parallel {
+                stage('Unit, Coverage') {
+                    agent {
+                        node {
+                            label 'agent1'
+                            // workspace fijo para toda la rama
+                            customWorkspace "${env.WORKSPACE}/unit-coverage"
+                        }
+                    }
 
+                    stages {
 
+                        stage('Unit') {
+                            steps {
+                                showAgentInformation()
+                                unstash 'code'
+
+                                catchError(buildResult: 'SUCCESS', stageResult: 'SUCCESS') {
+                                    sh '''
+                                        coverage run --branch --source=app \
+                                          --omit=app/__init__.py,app/api.py \
+                                          -m pytest --junitxml=result-unit.xml test/unit
+                                        coverage xml
+                                    '''
+                                }
+
+                                junit 'result-unit.xml'
+                            }
+                        }
+
+                        stage('Coverage') {
+                            steps {
+                                showAgentInformation()
+
+                                recordCoverage qualityGates: [
+                                    [criticality: 'NOTE', integerThreshold: 95, metric: 'LINE', threshold: 95.0],
+                                    [criticality: 'ERROR', integerThreshold: 85, metric: 'LINE', threshold: 85.0],
+                                    [criticality: 'ERROR', integerThreshold: 80, metric: 'BRANCH', threshold: 80.0],
+                                    [criticality: 'NOTE', integerThreshold: 90, metric: 'BRANCH', threshold: 90.0]
+                                ],
+                                tools: [[parser: 'COBERTURA', pattern: 'coverage.xml']]
+                            }
+                        }
+                    }
+
+                    post {
+                        cleanup {
+                            cleanWs(deleteDirs: true, disableDeferredWipeout: true)
+                        }
+                    }
+                }
                 stage('Rest') {
                     agent {label 'agent2'}
                     steps {
