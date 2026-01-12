@@ -83,6 +83,8 @@ pipeline {
                         cleanup {
                             cleanWs(deleteDirs: true, disableDeferredWipeout: true)
                             script {
+                                echo POST
+                                echo ${WORKSPACE}
                                 deleteDir()
                             }
                         }
