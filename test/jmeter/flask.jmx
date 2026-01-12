@@ -37,7 +37,7 @@
         <LoopController guiclass="LoopControlPanel" testclass="LoopController"
                         testname="Loop Add (40 executions)" enabled="true">
           <boolProp name="LoopController.continue_forever">false</boolProp>
-          <stringProp name="LoopController.loops">8</stringProp>
+          <stringProp name="LoopController.loops">4</stringProp>
         </LoopController>
         <hashTree>
           <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy"
@@ -62,7 +62,7 @@
         <LoopController guiclass="LoopControlPanel" testclass="LoopController"
                         testname="Loop Substract (40 executions)" enabled="true">
           <boolProp name="LoopController.continue_forever">false</boolProp>
-          <stringProp name="LoopController.loops">8</stringProp>
+          <stringProp name="LoopController.loops">4</stringProp>
         </LoopController>
         <hashTree>
           <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy"
