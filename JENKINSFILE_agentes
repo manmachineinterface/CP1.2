@@ -32,11 +32,7 @@ pipeline {
                 stage('Unit') {
                     agent {label 'agent1'}
                     steps {
-                        sh '''
-                            whoami
-                            hostname
-                            echo ${WORKSPACE}
-                        '''
+                        showAgentInformation()
                         catchError(buildResult: 'SUCCESS', stageResult: 'SUCCESS') {
                             unstash name:'code'
                             sh '''
@@ -52,11 +48,7 @@ pipeline {
                 stage('Rest') {
                     agent {label 'agent2'}
                     steps {
-                        sh '''
-                            whoami
-                            hostname
-                            echo ${WORKSPACE}
-                        '''
+                        showAgentInformation()
                         catchError(buildResult: 'SUCCESS', stageResult: 'SUCCESS') {
                             unstash name:'code'
                             sh '''
@@ -78,11 +70,7 @@ pipeline {
                 stage('Static') {
                     agent {label 'agent1'}
                     steps {
-                        sh '''
-                            whoami
-                            hostname
-                            echo ${WORKSPACE}
-                        '''
+                        showAgentInformation()
                         unstash name:'code'
                         sh '''
                             flake8 --exit-zero --format=pylint app > flake8.out
@@ -101,11 +89,7 @@ pipeline {
         stage("Coverage") {
             agent {label 'agent1'}
             steps {
-                sh '''
-                    whoami
-                    hostname
-                    echo ${WORKSPACE}
-                '''
+                showAgentInformation()
                 unstash 'coverage'
                 recordCoverage qualityGates: [
                     [criticality: 'NOTE', integerThreshold: 95, metric: 'LINE', threshold: 95.0],
@@ -120,11 +104,7 @@ pipeline {
         stage("Security") {
             agent {label 'agent1'}
             steps {
-                sh '''
-                    whoami
-                    hostname
-                    echo ${WORKSPACE}
-                '''
+                showAgentInformation()
                 unstash name:'code'
                 sh '''
                    bandit --exit-zero -r . -f custom -o bandit.out --msg-template "{abspath}:{line}: [{test_id}] {msg}"
@@ -141,11 +121,7 @@ pipeline {
         stage("Performance"){
             agent {label 'agent1'}
             steps {
-                sh '''
-                    whoami
-                    hostname
-                    echo ${WORKSPACE}
-                '''
+                showAgentInformation()
                 unstash name:'code'
                 sh '''
                     flask --app app/api.py run &
