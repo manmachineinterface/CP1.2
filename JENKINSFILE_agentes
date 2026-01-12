@@ -34,7 +34,7 @@ pipeline {
         }
 
         stage ('Unit, Coverage') {
-            agent {label 'agent3'}
+            agent {label 'agent1'}
             stages {
                 stage('Unit') {
                     steps {
