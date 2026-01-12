@@ -171,7 +171,7 @@ pipeline {
                             flask --app app/api.py run &
                             FLASK_PID=$!
                             curl -sf --retry 10 --retry-delay 1 --retry-connrefused http://localhost:5000
-                            jmeter -n -t test/jmeter/flask_${BUILD_NUMBER}.jtl -f -l flask.jtl
+                            jmeter -n -t test/jmeter/flask.jtl -f -l flask_${BUILD_NUMBER}.jtl
                             kill $FLASK_PID
                         '''
                         perfReport sourceDataFiles: 'flask_${BUILD_NUMBER}.jtl', ignoreFailedBuilds: true
