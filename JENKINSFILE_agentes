@@ -35,7 +35,7 @@ pipeline {
 
         stage ('Tests') {
             parallel {
-                'Unit, Coverage': {
+                stage ('Unit, Coverage') {
                     agent {label 'agent1'}
                     stages {
                         stage('Unit') {
@@ -79,7 +79,7 @@ pipeline {
                             }
                         }
                     }
-                },
+                }
 
                 stage('Rest') {
                     agent {label 'agent2'}
