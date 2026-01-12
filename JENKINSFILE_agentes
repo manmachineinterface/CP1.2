@@ -58,9 +58,10 @@ pipeline {
                                           -m pytest --junitxml=result-unit.xml test/unit
                                         coverage xml
                                     '''
+                                    junit 'result-unit.xml'
                                 }
 
-                                junit 'result-unit.xml'
+                                //junit 'result-unit.xml'
                             }
                         }
 
