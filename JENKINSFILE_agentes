@@ -48,15 +48,18 @@ pipeline {
                                         coverage xml
                                     '''
                                 }
-                                stash name: 'coverage', includes: 'coverage.xml'
                                 junit 'result-unit.xml'
+                                //stash name: 'coverage', includes: 'coverage.xml'
                             }
 
-                            //post {
-                            //    cleanup {
-                            //        cleanWs(deleteDirs: true, disableDeferredWipeout: true)
-                            //    }
-                            //}
+                            post {
+                                always {
+                                    stash name: 'coverage', includes: 'coverage.xml'
+                                }
+                                cleanup {
+                                    cleanWs(deleteDirs: true, disableDeferredWipeout: true)
+                                }
+                            }
                         }
 
                         stage("Coverage") {
