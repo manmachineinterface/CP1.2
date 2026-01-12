@@ -110,7 +110,7 @@ pipeline {
                 }
 
                 stage('Static') {
-                    agent {label 'agent1'}
+                    agent {label 'agent3'}
                     steps {
                         showAgentInformation()
                         unstash name:'code'
@@ -156,7 +156,7 @@ pipeline {
                 }
 
                 stage("Performance"){
-                    agent {label 'agent1'}
+                    agent {label 'agent3'}
                     steps {
                         showAgentInformation()
                         unstash name:'code'
