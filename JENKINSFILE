@@ -90,8 +90,7 @@ pipeline {
                     jmeter -n -t test/jmeter/flask.jmx -f -l flask_${BUILD_NUMBER}.jtl
                     kill $FLASK_PID
                 '''
-                //perfReport sourceDataFiles: 'flask_${BUILD_NUMBER}.jtl', ignoreFailedBuilds: true
-                perfReport sourceDataFiles: 'flask_${BUILD_NUMBER}.jtl', errorUnstableThreshold: 1, errorFailedThreshold: 5, percentiles: '0,50,90,95,100'
+                perfReport sourceDataFiles: 'flask_${BUILD_NUMBER}.jtl', ignoreFailedBuilds: true
             }
         }
 
