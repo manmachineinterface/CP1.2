@@ -79,7 +79,7 @@ pipeline {
                             }
                         }
                     }
-                }
+                },
 
                 stage('Rest') {
                     agent {label 'agent2'}
