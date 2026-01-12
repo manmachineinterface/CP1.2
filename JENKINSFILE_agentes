@@ -36,7 +36,7 @@ pipeline {
         stage('Unit, Rest, Static, Security and Performance') {
             parallel {
                 stage('Unit') {
-                    agent {label 'agent2'}
+                    agent {label 'agent1'}
                     steps {
                         showAgentInformation()
                         catchError(buildResult: 'SUCCESS', stageResult: 'SUCCESS') {
@@ -109,7 +109,7 @@ pipeline {
                 }
 
                 stage("Security") {
-                    agent {label 'agent2'}
+                    agent {label 'agent1'}
                     steps {
                         showAgentInformation()
                         unstash name:'code'
