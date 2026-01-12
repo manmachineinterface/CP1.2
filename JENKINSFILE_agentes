@@ -1,3 +1,11 @@
+def showAgentInformation() {
+    sh '''
+        whoami
+        hostname
+        echo ${WORKSPACE}
+    '''
+}
+
 pipeline {
     agent none
 
@@ -10,6 +18,7 @@ pipeline {
         stage('Get Code') {
             agent {label 'agent1'}
             steps {
+                showAgentInformation()
                 git branch: 'main',
                     changelog: false,
                     poll: false,
@@ -23,6 +32,11 @@ pipeline {
                 stage('Unit') {
                     agent {label 'agent1'}
                     steps {
+                        sh '''
+                            whoami
+                            hostname
+                            echo ${WORKSPACE}
+                        '''
                         catchError(buildResult: 'SUCCESS', stageResult: 'SUCCESS') {
                             unstash name:'code'
                             sh '''
@@ -30,6 +44,7 @@ pipeline {
                                 coverage xml
                             '''
                             junit 'result-unit.xml'
+                            stash name: 'coverage', includes: 'coverage.xml'
                         }
                     }
                 }
@@ -37,6 +52,11 @@ pipeline {
                 stage('Rest') {
                     agent {label 'agent2'}
                     steps {
+                        sh '''
+                            whoami
+                            hostname
+                            echo ${WORKSPACE}
+                        '''
                         catchError(buildResult: 'SUCCESS', stageResult: 'SUCCESS') {
                             unstash name:'code'
                             sh '''
@@ -58,6 +78,11 @@ pipeline {
                 stage('Static') {
                     agent {label 'agent1'}
                     steps {
+                        sh '''
+                            whoami
+                            hostname
+                            echo ${WORKSPACE}
+                        '''
                         unstash name:'code'
                         sh '''
                             flake8 --exit-zero --format=pylint app > flake8.out
@@ -76,6 +101,12 @@ pipeline {
         stage("Coverage") {
             agent {label 'agent1'}
             steps {
+                sh '''
+                    whoami
+                    hostname
+                    echo ${WORKSPACE}
+                '''
+                unstash 'coverage'
                 recordCoverage qualityGates: [
                     [criticality: 'NOTE', integerThreshold: 95, metric: 'LINE', threshold: 95.0],
                     [criticality: 'ERROR', integerThreshold: 85, metric: 'LINE', threshold: 85.0],
@@ -89,6 +120,11 @@ pipeline {
         stage("Security") {
             agent {label 'agent1'}
             steps {
+                sh '''
+                    whoami
+                    hostname
+                    echo ${WORKSPACE}
+                '''
                 unstash name:'code'
                 sh '''
                    bandit --exit-zero -r . -f custom -o bandit.out --msg-template "{abspath}:{line}: [{test_id}] {msg}"
@@ -105,6 +141,11 @@ pipeline {
         stage("Performance"){
             agent {label 'agent1'}
             steps {
+                sh '''
+                    whoami
+                    hostname
+                    echo ${WORKSPACE}
+                '''
                 unstash name:'code'
                 sh '''
                     flask --app app/api.py run &
