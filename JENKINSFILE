@@ -55,8 +55,8 @@ pipeline {
                             flake8 --exit-zero --format=pylint app > flake8.out
                         '''
                         recordIssues qualityGates: [
-                            [criticality: 'UNSTABLE', integerThreshold: 9, threshold: 9.0, type: 'TOTAL'],
-                            [criticality: 'FAILURE', integerThreshold: 30, threshold: 30.0, type: 'TOTAL']
+                            [criticality: 'UNSTABLE', integerThreshold: 5, threshold: 5.0, type: 'TOTAL'],
+                            [criticality: 'FAILURE', integerThreshold: 8, threshold: 8.0, type: 'TOTAL']
                         ],
                         sourceCodeRetention: 'LAST_BUILD',
                         tools: [flake8(pattern: 'flake8.out')]
