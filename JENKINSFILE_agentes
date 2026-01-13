@@ -19,7 +19,7 @@ pipeline {
             agent {label 'agent1'}
             steps {
                 showAgentInformation()
-                git branch: 'master',
+                git branch: 'main',
                     changelog: false,
                     poll: false,
                     url: 'https://github.com/manmachineinterface/CP1.2'
@@ -33,61 +33,30 @@ pipeline {
             }
         }
 
-        stage ('Tests') {
+        stage('Unit, Rest, Static and Security') {
             parallel {
-                stage('Unit, Coverage') {
-                    agent {
-                        node {
-                            label 'agent1'
-                            // workspace fijo para toda la rama
-                            customWorkspace "unit-coverage"
-                        }
-                    }
-
-                    stages {
-
-                        stage('Unit') {
-                            steps {
-                                showAgentInformation()
-                                unstash 'code'
-
-                                catchError(buildResult: 'SUCCESS', stageResult: 'SUCCESS') {
-                                    sh '''
-                                        coverage run --branch --source=app \
-                                          --omit=app/__init__.py,app/api.py \
-                                          -m pytest --junitxml=result-unit.xml test/unit
-                                        coverage xml
-                                    '''
-                                }
-
-                                junit 'result-unit.xml'
-                            }
-                        }
-
-                        stage('Coverage') {
-                            steps {
-                                showAgentInformation()
-
-                                recordCoverage qualityGates: [
-                                    [criticality: 'NOTE', integerThreshold: 95, metric: 'LINE', threshold: 95.0],
-                                    [criticality: 'ERROR', integerThreshold: 85, metric: 'LINE', threshold: 85.0],
-                                    [criticality: 'ERROR', integerThreshold: 80, metric: 'BRANCH', threshold: 80.0],
-                                    [criticality: 'NOTE', integerThreshold: 90, metric: 'BRANCH', threshold: 90.0]
-                                ],
-                                tools: [[parser: 'COBERTURA', pattern: 'coverage.xml']]
-                            }
+                stage('Unit') {
+                    agent {label 'agent1'}
+                    steps {
+                        showAgentInformation()
+                        catchError(buildResult: 'SUCCESS', stageResult: 'SUCCESS') {
+                            unstash name:'code'
+                            sh '''
+                                coverage run --branch --source=app --omit=app/__init__.py,app/api.py -m pytest --junitxml=result-unit.xml test/unit
+                                coverage xml
+                            '''
+                            junit 'result-unit.xml'
+                            stash name: 'coverage', includes: 'coverage.xml'
                         }
                     }
 
                     post {
                         cleanup {
                             cleanWs(deleteDirs: true, disableDeferredWipeout: true)
-                            script {
-                                deleteDir()
-                            }
                         }
                     }
                 }
+
                 stage('Rest') {
                     agent {label 'REST'}
                     steps {
@@ -105,8 +74,8 @@ pipeline {
                                 kill $FLASK_PID
                                 kill $WIREMOCK_PID
                             '''
+                            junit 'result-rest.xml'
                         }
-                        junit 'result-rest.xml'
                     }
 
                     post {
@@ -140,7 +109,7 @@ pipeline {
                 }
 
                 stage("Security") {
-                    agent {label 'agent2'}
+                    agent {label 'agent3'}
                     steps {
                         showAgentInformation()
                         unstash name:'code'
@@ -161,9 +130,13 @@ pipeline {
                         }
                     }
                 }
+            }
+        }
 
+        stage('Performance and Coverage') {
+            parallel {
                 stage("Performance"){
-                    agent {label 'performance'}
+                    agent {label 'REST'}
                     steps {
                         showAgentInformation()
                         unstash name:'code'
@@ -171,10 +144,31 @@ pipeline {
                             flask --app app/api.py run &
                             FLASK_PID=$!
                             curl -sf --retry 10 --retry-delay 1 --retry-connrefused http://localhost:5000
-                            jmeter -n -t test/jmeter/flask.jmx -f -l flask_${BUILD_NUMBER}.jtl
+                            jmeter -n -t test/jmeter/flask.jmx -f -l flask.jtl
                             kill $FLASK_PID
                         '''
-                        perfReport sourceDataFiles: 'flask_${BUILD_NUMBER}.jtl', ignoreFailedBuilds: true
+                        perfReport sourceDataFiles: 'flask.jtl'
+                    }
+
+                    post {
+                        cleanup {
+                            cleanWs(deleteDirs: true, disableDeferredWipeout: true)
+                        }
+                    }
+                }
+
+                stage("Coverage") {
+                    agent {label 'agent1'}
+                    steps {
+                        showAgentInformation()
+                        unstash 'coverage'
+                        recordCoverage qualityGates: [
+                            [criticality: 'NOTE', integerThreshold: 95, metric: 'LINE', threshold: 95.0],
+                            [criticality: 'ERROR', integerThreshold: 85, metric: 'LINE', threshold: 85.0],
+                            [criticality: 'ERROR', integerThreshold: 80, metric: 'BRANCH', threshold: 80.0],
+                            [criticality: 'NOTE', integerThreshold: 90, metric: 'BRANCH', threshold: 90.0]
+                        ],
+                        tools: [[parser: 'COBERTURA', pattern: 'coverage.xml']]
                     }
 
                     post {
