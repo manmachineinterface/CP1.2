@@ -58,7 +58,7 @@ pipeline {
                 }
 
                 stage('Rest') {
-                    agent {label 'REST'}
+                    agent {label 'agent1'}
                     steps {
                         showAgentInformation()
                         catchError(buildResult: 'SUCCESS', stageResult: 'SUCCESS') {
@@ -86,7 +86,7 @@ pipeline {
                 }
 
                 stage('Static') {
-                    agent {label 'agent3'}
+                    agent {label 'agent1'}
                     steps {
                         showAgentInformation()
                         unstash name:'code'
@@ -109,7 +109,7 @@ pipeline {
                 }
 
                 stage("Security") {
-                    agent {label 'agent3'}
+                    agent {label 'agent1'}
                     steps {
                         showAgentInformation()
                         unstash name:'code'
@@ -136,7 +136,7 @@ pipeline {
         stage('Performance and Coverage') {
             parallel {
                 stage("Performance"){
-                    agent {label 'REST'}
+                    agent {label 'agent1'}
                     steps {
                         showAgentInformation()
                         unstash name:'code'
