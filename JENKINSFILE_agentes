@@ -161,6 +161,7 @@ pipeline {
                     agent {label 'agent1'}
                     steps {
                         showAgentInformation()
+                        unstash 'code'
                         unstash 'coverage'
                         recordCoverage qualityGates: [
                             [criticality: 'NOTE', integerThreshold: 95, metric: 'LINE', threshold: 95.0],
